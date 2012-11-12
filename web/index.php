@@ -19,9 +19,9 @@ defined('APPLICATION_ENV')
 
 if (getenv('APPLICATION_ENV') === 'prod') {
     require dirname(__FILE__) . '/app.php';
-} elseif (getenv('APPLICATION_ENV' === 'dev')) {
+} elseif (getenv('APPLICATION_ENV') === 'dev') {
     require dirname(__FILE__) . '/app_dev.php';
 } else {
     header('HTTP/1.0 500 Internal Server Error');
-    exit('Improper APPLICATION_ENV set. See '.basename(__FILE__).' for more information.');
+    exit('Improper APPLICATION_ENV set. See ' . basename(__FILE__) . ' for more information.');
 }
