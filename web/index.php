@@ -17,9 +17,9 @@
 defined('APPLICATION_ENV')
     || define('APPLICATION_ENV', (getenv('APPLICATION_ENV') ? getenv('APPLICATION_ENV') : 'prod'));
 
-if ('APPLICATION_ENV' === 'prod') {
+if (APPLICATION_ENV === 'prod') {
     require dirname(__FILE__) . '/app.php';
-} elseif ('APPLICATION_ENV' === 'dev') {
+} elseif (APPLICATION_ENV === 'dev') {
     require dirname(__FILE__) . '/app_dev.php';
 } else {
     header('HTTP/1.0 500 Internal Server Error');
