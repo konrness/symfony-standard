@@ -7,7 +7,7 @@
  * @category Nerdery-Symfony
  * @package Symfony-Standard
  * @author Maxwell Vandervelde <Maxwell.Vandervelde@nerdery.com>
- * @copyright (c) 2012, The Nerdery
+ * @copyright (c) 2012-2013, The Nerdery
  * @license http://creativecommons.org/licenses/by-nc-sa/3.0/legalcode 
  *          Attribution-NonCommercial-ShareAlike 3.0 Unported
  *          Some Rights Reserved
