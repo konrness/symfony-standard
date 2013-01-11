@@ -6,7 +6,10 @@ use Symfony\Component\HttpFoundation\Request;
 // read http://symfony.com/doc/current/book/installation.html#configuration-and-setup for more information
 //umask(0000);
 
-if (getenv('APPLICATION_ENV') !== 'dev') {
+defined('APPLICATION_ENV')
+    || define('APPLICATION_ENV', (getenv('APPLICATION_ENV') ? getenv('APPLICATION_ENV') : 'prod'));
+
+if (APPLICATION_ENV !== 'dev') {
     header('HTTP/1.0 403 Forbidden');
     exit('You are not allowed to access this file. Check '.basename(__FILE__).' for more information.');
 }
