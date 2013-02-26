@@ -1,8 +1,8 @@
-web/bundles/
-app/bootstrap.php.cache
-app/cache/*
-app/logs/*
-app/config/parameters.*
-build/
-vendor
-composer.phar
+/web/bundles/
+/app/bootstrap.php.cache
+/app/cache/*
+/app/logs/*
+/app/config/parameters.*
+/build/
+/vendor
+/composer.phar
