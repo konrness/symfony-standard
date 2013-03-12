@@ -4,5 +4,6 @@
 /app/logs/*
 /app/config/parameters.*
 /build/
-/vendor
+/vendor/
+/bin/
 /composer.phar
