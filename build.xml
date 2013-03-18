@@ -204,8 +204,16 @@
 
     <!-- Build Permissions -->
     <target name="build:permissions">
-        <chmod file="${dir.cache}" mode="0777" verbose="true"/>
-        <chmod file="${dir.logs}" mode="0777" verbose="true"/>
+        <chmod mode="0777" verbose="true">
+            <fileset dir="${dir.logs}">
+                <include name="**/**"/>
+            </fileset>
+        </chmod>
+        <chmod mode="0777" verbose="true">
+            <fileset dir="${dir.cache}">
+                <include name="**/**"/>
+            </fileset>
+        </chmod>
     </target>
 
     <target name="build:package">
