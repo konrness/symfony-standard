@@ -1,0 +1,277 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="Symfony2 Build Template" basedir="." default="main">
+    <!-- Properties -->
+    <property file="build.properties"/>
+    <property name="dir.app" value="${project.basedir}/app"/>
+    <property name="dir.src" value="${project.basedir}/src"/>
+    <property name="dir.cache" value="${dir.app}/cache"/>
+    <property name="dir.logs" value="${dir.app}/logs"/>
+    <property name="dir.web" value="${project.basedir}/web"/>
+    <property name="dir.vendor" value="${project.basedir}/vendor"/>
+    <property name="dir.build" value="${project.basedir}/build"/>
+    <property name="dir.docs" value="${dir.build}/docs"/>
+    <property name="dir.docs.phpdoc" value="${dir.docs}/phpdoc"/>
+    <property name="dir.docs.docblox" value="${dir.docs}/docblox"/>
+    <property name="dir.reports" value="${dir.build}/logs"/>
+    <property name="dir.reports.pdepend" value="${dir.reports}/pdepend"/>
+    <property name="dir.reports.coverage" value="${dir.reports}/coverage"/>
+
+    <!-- Filesets -->
+    <fileset id="sourcecode" dir="${dir.src}">
+        <include name="**/*.php"/>
+    </fileset>
+
+    <!-- Default target -->
+    <target name="main">
+        <echo msg="See:"/>
+        <echo msg=" * phing -l"/>
+    </target>
+
+    <!-- Install target -->
+    <target name="install"
+            depends="
+                build:clean,
+                build:prepare,
+                build:configs,
+                build:dependencies:install,
+                build:permissions
+            "
+            description="Install Project">
+        <echo message="!! INSTALL COMPLETE. Please fill out app/config/parameters.yml if you have not already configured it." />
+    </target>
+
+    <!-- Release target -->
+    <target name="release"
+            depends="
+                build:clean,
+                build:prepare,
+                build:check,
+                build:configs,
+                build:doc,
+                build:dependencies:install,
+                build:permissions,
+                test:unit,
+                build:package
+            "
+            description="Run all test and build everything"/>
+
+    <!-- Test target -->
+    <target name="test"
+            description="Run application tests"
+            depends="test:unit"/>
+
+    <!-- Build Configs -->
+    <target name="build:configs">
+        <phingcall target="build:phpunit:config" />
+        <phingcall target="build:htaccess" />
+        <phingcall target="build:parameters" />
+    </target>
+
+    <!-- Dependency / Composer install -->
+    <target name="build:dependencies:install">
+        <if>
+            <available file="composer.phar"/>
+            <then>
+                <composer command="install"/>
+            </then>
+            <else>
+                <fail message="Composer not found, please run: curl -s https://getcomposer.org/installer | php"/>
+            </else>
+        </if>
+    </target>
+
+    <target name="build:htaccess">
+        <if>
+            <and>
+                <not>
+                    <available file="${dir.web}/.htaccess"/>
+                </not>
+                <isset property="project.application-environment"/>
+                <isset property="project.rewrite-base"/>
+            </and>
+            <then>
+                <phingcall target="build:htaccess:from-properties"/>
+            </then>
+            <else>
+                <phingcall target="build:htaccess:from-input"/>
+            </else>
+        </if>
+    </target>
+
+    <target name="build:htaccess:from-properties">
+        <copy file="${dir.web}/.htaccess.dist" tofile="${dir.web}/.htaccess"
+              overwrite="true">
+            <filterchain>
+                <replacetokens>
+                    <token key="PLACEHOLDER_APPLICATION_ENV"
+                           value="${project.application-environment}"/>
+                    <token key="PLACEHOLDER_REWRITE_BASE"
+                           value="${project.rewrite-base}"/>
+                </replacetokens>
+            </filterchain>
+        </copy>
+    </target>
+
+    <target name="build:htaccess:from-input">
+        <input propertyname="project.application-environment"
+               defaultValue="prod" promptChar="?">Application environment
+        </input>
+        <input propertyname="project.rewrite-base" defaultValue="/"
+               promptChar="?">Rewrite base
+        </input>
+
+        <copy file="${dir.web}/.htaccess.dist" tofile="${dir.web}/.htaccess"
+              overwrite="true">
+            <filterchain>
+                <replacetokens>
+                    <token key="PLACEHOLDER_APPLICATION_ENV"
+                           value="${project.application-environment}"/>
+                    <token key="PLACEHOLDER_REWRITE_BASE"
+                           value="${project.rewrite-base}"/>
+                </replacetokens>
+            </filterchain>
+        </copy>
+    </target>
+
+    <target name="build:parameters">
+        <if>
+            <not>
+                <isset property="project.parameters"/>
+            </not>
+            <then>
+                <copy file="${dir.app}/config/parameters.yml.dist"
+                      tofile="${dir.app}/config/parameters.yml"
+                      overwrite="false"/>
+            </then>
+            <else>
+                <copy file="${project.parameters}"
+                      tofile="${dir.app}/config/parameters.yml"
+                      overwrite="true"/>
+            </else>
+        </if>
+    </target>
+
+    <!-- Build Permissions -->
+    <target name="build:permissions">
+        <chmod file="${dir.cache}" mode="0777" verbose="true"/>
+        <chmod file="${dir.logs}" mode="0777" verbose="true"/>
+    </target>
+
+    <target name="build:package">
+        <zip destfile="build/release.zip">
+            <fileset dir=".">
+                <include name="**/**"/>
+            </fileset>
+        </zip>
+    </target>
+
+    <target name="build:phpunit:config">
+        <copy file="${dir.app}/phpunit.xml.dist" tofile="${dir.app}/phpunit.xml"
+              overwrite="false"/>
+    </target>
+
+    <!-- Doc target -->
+    <target name="build:doc"
+            depends="build:prepare, doc:phpdoc, doc:docblox"/>
+
+    <!-- Check target -->
+    <target name="build:check"
+            depends="check:cs, check:md, check:cpd, check:depend"/>
+
+    <!-- Project build clean -->
+    <target name="build:clean">
+        <echo msg="Cleaning build directories ..."/>
+        <delete dir="${dir.build}" verbose="true"/>
+        <delete dir="${dir.vendor}" verbose="false"/>
+        <delete dir="${dir.cache}" verbose="false"/>
+        <delete dir="${dir.logs}" verbose="true"/>
+        <delete dir="${dir.web}/.htaccess" verbose="true"/>
+    </target>
+
+    <!-- Project build prepare -->
+    <target name="build:prepare">
+        <echo msg="Creating build directories ..."/>
+        <mkdir dir="${dir.cache}"/>
+        <mkdir dir="${dir.logs}"/>
+        <mkdir dir="${dir.build}"/>
+        <mkdir dir="${dir.docs}"/>
+        <mkdir dir="${dir.docs.phpdoc}"/>
+        <mkdir dir="${dir.docs.docblox}"/>
+        <mkdir dir="${dir.reports}"/>
+        <mkdir dir="${dir.reports.coverage}"/>
+        <mkdir dir="${dir.reports.pdepend}"/>
+    </target>
+
+    <!-- PHPDOC API documentation target -->
+    <target name="doc:phpdoc">
+        <echo msg="Generating API documentation with PHPDoc..."/>
+        <phpdoc title="${phing.project.name} :: API Documentation"
+                defaultpackagename="${phing.project.name}"
+                destdir="${dir.docs.phpdoc}"
+                output="HTML:Smarty:PHP"
+                sourcecode="yes">
+            <fileset refid="sourcecode"/>
+        </phpdoc>
+    </target>
+
+    <!-- DocBlox API documentation target -->
+    <target name="doc:docblox">
+        <echo msg="Generating API Documentation with DocBlox ..."/>
+        <docblox title="${phing.project.name} :: API Documentation"
+                 destdir="${dir.docs.docblox}"
+                 quiet="false">
+            <fileset refid="sourcecode"/>
+        </docblox>
+    </target>
+
+    <!-- Symfony2 code sniffer -->
+    <target name="check:cs">
+        <echo msg="Checking coding standard ..."/>
+        <phpcodesniffer standard="PSR2"
+                        showSniffs="true"
+                        showWarnings="true">
+            <fileset refid="sourcecode"/>
+            <formatter type="checkstyle"
+                       outfile="${dir.reports}/checkstyle.xml"/>
+        </phpcodesniffer>
+    </target>
+
+    <!-- copy/paste detector -->
+    <target name="check:cpd">
+        <echo msg="Checking similar code blocks ..."/>
+        <phpcpd>
+            <fileset refid="sourcecode"/>
+            <formatter type="pmd" outfile="${dir.reports}/pmd-cpd.xml"/>
+        </phpcpd>
+    </target>
+
+    <!-- Mess detector -->
+    <target name="check:md">
+        <echo msg="Generating code metrics ..."/>
+        <phpmd rulesets="codesize,unusedcode">
+            <fileset refid="sourcecode"/>
+            <formatter type="xml" outfile="${dir.reports}/pmd.xml"/>
+        </phpmd>
+    </target>
+
+    <!-- Code dependency -->
+    <target name="check:depend">
+        <echo msg="Checking coupling and dependency ..."/>
+        <phpdepend file="${dir.src}">
+            <logger type="jdepend-xml"
+                    outfile="${dir.reports.pdepend}/jdepend.xml"/>
+            <logger type="jdepend-chart"
+                    outfile="${dir.reports.pdepend}/dependencies.svg"/>
+            <logger type="overview-pyramid"
+                    outfile="${dir.reports.pdepend}/overview-pyramid.svg"/>
+        </phpdepend>
+    </target>
+
+    <!-- Unit tests -->
+    <target name="test:unit">
+        <echo msg="Running unit tests ..."/>
+        <exec passthru="true" checkreturn="true"
+              command="phpunit --log-junit ${dir.reports}/phpunit.xml --coverage-clover ${dir.reports.coverage}/clover.xml --coverage-html ${dir.reports.coverage}/ -c ${dir.app}/phpunit.xml"/>
+    </target>
+
+</project>
