@@ -1,4 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Symfony2 build.xml template
+
+    This file is a template build file for Symfony2 projects. It defines all the
+    processes needed to clean and build a project and will walk developers
+    through the setup process.
+
+    NOTES:
+    * This script will prompt the user for an application environment and
+      rewrite base upon install. To do this automatically you may specify these
+      in your build.properties file as `project.application-environment` and
+      `project.rewrite-base`
+    * This script will not fill out your parameters.yml file. After install, a
+      message will be displayed that these must be edited. The install script
+      will copy over a default parameters file from the .dist file if none
+      exists. To automate this process you may specify `project.parameters` in
+      your build.properties file with a path to the parameters file you would
+      like to use
+-->
 <project name="Symfony2 Build Template" basedir="." default="main">
     <!-- Properties -->
     <property file="build.properties"/>
@@ -27,7 +46,12 @@
         <echo msg=" * phing -l"/>
     </target>
 
-    <!-- Install target -->
+    <!--
+        Install target
+
+        This Target defines the process for the Install command. It sets up the
+        minimum needed for the application to run properly.
+    -->
     <target name="install"
             depends="
                 build:clean,
@@ -40,7 +64,12 @@
         <echo message="!! INSTALL COMPLETE. Please fill out app/config/parameters.yml if you have not already configured it." />
     </target>
 
-    <!-- Release target -->
+    <!--
+        Release target
+
+        This target defines the process for the Release command. It does a full
+        clean and install of the application and then packages it.
+    -->
     <target name="release"
             depends="
                 build:clean,
@@ -55,10 +84,27 @@
             "
             description="Run all test and build everything"/>
 
-    <!-- Test target -->
+    <!--
+        Test target
+
+        This target defines a process for running unit tests
+    -->
     <target name="test"
             description="Run application tests"
             depends="test:unit"/>
+
+    <!--
+        Clean Target
+
+        This target defines the process for cleaning the build
+    -->
+    <target name="clean"
+            description="Clean up build files"
+            depends="build:clean" />
+
+
+
+    <!-- SUBTARGETS -->
 
     <!-- Build Configs -->
     <target name="build:configs">
@@ -72,7 +118,8 @@
         <if>
             <available file="composer.phar"/>
             <then>
-                <composer command="install"/>
+                <exec passthru="true" checkreturn="true" command="composer.phar install" />
+                <!--<composer command="install"/>-->
             </then>
             <else>
                 <fail message="Composer not found, please run: curl -s https://getcomposer.org/installer | php"/>
@@ -80,6 +127,7 @@
         </if>
     </target>
 
+    <!-- Create .htaccess files -->
     <target name="build:htaccess">
         <if>
             <and>
@@ -98,6 +146,7 @@
         </if>
     </target>
 
+    <!-- Create .htaccess from a properties file -->
     <target name="build:htaccess:from-properties">
         <copy file="${dir.web}/.htaccess.dist" tofile="${dir.web}/.htaccess"
               overwrite="true">
@@ -112,6 +161,7 @@
         </copy>
     </target>
 
+    <!-- Create .htaccess from user input -->
     <target name="build:htaccess:from-input">
         <input propertyname="project.application-environment"
                defaultValue="prod" promptChar="?">Application environment
@@ -133,6 +183,7 @@
         </copy>
     </target>
 
+    <!-- Create parameters file -->
     <target name="build:parameters">
         <if>
             <not>
@@ -165,6 +216,7 @@
         </zip>
     </target>
 
+    <!-- Copy dist phpunit xml -->
     <target name="build:phpunit:config">
         <copy file="${dir.app}/phpunit.xml.dist" tofile="${dir.app}/phpunit.xml"
               overwrite="false"/>
@@ -224,7 +276,7 @@
         </docblox>
     </target>
 
-    <!-- Symfony2 code sniffer -->
+    <!-- PSR2 code sniffer -->
     <target name="check:cs">
         <echo msg="Checking coding standard ..."/>
         <phpcodesniffer standard="PSR2"
