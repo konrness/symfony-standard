@@ -113,7 +113,12 @@
         <phingcall target="build:parameters" />
     </target>
 
-    <!-- Dependency / Composer install -->
+    <!--
+        Dependency / Composer install
+
+        Composer task was removed in favor of command line temporarily due to
+        no support for global path recognition.
+    -->
     <target name="build:dependencies:install">
         <if>
             <available file="composer.phar"/>
@@ -230,9 +235,12 @@
               overwrite="false"/>
     </target>
 
-    <!-- Doc target -->
+    <!--
+        Doc target
+        dependency: doc:docblox can be added to this list to generate docblox
+    -->
     <target name="build:doc"
-            depends="build:prepare, doc:phpdoc, doc:docblox"/>
+            depends="build:prepare, doc:phpdoc"/>
 
     <!-- Check target -->
     <target name="build:check"
