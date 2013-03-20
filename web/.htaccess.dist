@@ -1,9 +1,8 @@
 <IfModule mod_rewrite.c>
     RewriteEngine On
 
-    #<IfModule mod_vhost_alias.c>
-    #    RewriteBase /
-    #</IfModule>
+    RewriteBase @PLACEHOLDER_REWRITE_BASE@
+    SetEnv APPLICATION_ENV @PLACEHOLDER_APPLICATION_ENV@
 
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^(.*)$ index.php [QSA,L]

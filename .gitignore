@@ -3,12 +3,19 @@
 /app/bootstrap.php.cache
 /app/cache/*
 /app/logs/*
-/app/config/parameters.*
-/build/
 /vendor/
 /bin/
-/composer.phar
 /web/uploads
+
+# Build files
+/composer.phar
+/composer.lock
+/build/
+/app/phpunit.xml
+/app/config/parameters.yml
+/web/.htaccess
+/build.properties
+
 
 # IDE specific project files
 .nbproject
