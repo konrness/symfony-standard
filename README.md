@@ -1,7 +1,7 @@
 Nerdery Symfony-Standard Fork
 =============================
 
-This is a Modified fork of the [Symfony2][2] framework, maintained by The
+This is a Modified fork of the [Symfony2][1] framework, maintained by The
 Nerdery.
 
 1) Creating a New Project
