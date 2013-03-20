@@ -4,7 +4,42 @@ Nerdery Symfony-Standard Fork
 This is a Modified fork of the [Symfony2][2] framework, maintained by The
 Nerdery.
 
-1) Software Requirements
+1) Creating a New Project
+-------------------------
+
+You can create a new empty nerdery-symfony-standard project by running:
+
+    composer.phar create-project nerdery/symfony-standard PATH/TO/INSTALL
+
+2) Installing the project
+-------------------------
+
+Once you have the source code of your existing or new project, you can 
+easily install it using the phing install command:
+
+    phing install
+
+Then, you will need to configure settings in
+
+    app/config/parameters.yml
+
+3) Checking your System Configuration
+-------------------------------------
+
+Before starting coding, make sure that your local system is properly
+configured for Symfony.
+
+Execute the `check.php` script from the command line:
+
+    php app/check.php
+
+Access the `config.php` script from a browser:
+
+    http://localhost/path/to/symfony/app/web/config.php
+
+If you get any warnings or recommendations, fix them before moving on.
+
+4) Software Requirements
 ------------------------
 ### Required
 
@@ -43,33 +78,5 @@ Nerdery.
 If you want to use Doctrine, you will need to have PDO installed. Additionally,
 you need to have the PDO driver installed for the database server you want
 to use.
-
-2) Installing the project
--------------------------
-
-Once you have the source code, you can easily install it using the phing install
-command:
-
-    phing install
-
-Then, you will need to configure settings in
-
-    app/config/parameters.yml
-
-3) Checking your System Configuration
--------------------------------------
-
-Before starting coding, make sure that your local system is properly
-configured for Symfony.
-
-Execute the `check.php` script from the command line:
-
-    php app/check.php
-
-Access the `config.php` script from a browser:
-
-    http://localhost/path/to/symfony/app/web/config.php
-
-If you get any warnings or recommendations, fix them before moving on.
 
 [1]:  http://symfony.com/what-is-symfony
