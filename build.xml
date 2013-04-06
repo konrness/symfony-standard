@@ -123,11 +123,11 @@
         <if>
             <available file="composer.phar"/>
             <then>
-                <exec passthru="true" checkreturn="true" command="composer.phar install" />
+                <exec passthru="true" checkreturn="true" command="./composer.phar install" />
                 <!--<composer command="install"/>-->
             </then>
             <else>
-                <fail message="Composer not found, please run: curl -s https://getcomposer.org/installer | php"/>
+                <exec passthru="true" checkreturn="true" command="composer.phar install" />
             </else>
         </if>
     </target>
