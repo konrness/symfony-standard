@@ -206,7 +206,7 @@
 
     <target name="build:package">
         <zip destfile="build/release.zip">
-            <fileset dir="${dir.web}">
+            <fileset dir="${project.basedir}">
                 <include name="**/**"/>
             </fileset>
         </zip>
