@@ -11,6 +11,10 @@ You can create a new empty nerdery-symfony-standard project by running:
 
     composer.phar create-project nerdery/symfony-standard PATH/TO/INSTALL
 
+You can then generate your app's first bundle with the command:
+
+    app/console generate:bundle
+
 2) Installing the project
 -------------------------
 
@@ -78,5 +82,17 @@ If you get any warnings or recommendations, fix them before moving on.
 If you want to use Doctrine, you will need to have PDO installed. Additionally,
 you need to have the PDO driver installed for the database server you want
 to use.
+
+5) Production Release
+---------------------
+
+You can install a production release level of the software with the following
+command:
+
+    phing release
+
+This will generate assets and configuration appropriate for building on a
+production server. It generates reports on the software and it creates a zip of
+the contents in `build/release.zip`
 
 [1]:  http://symfony.com/what-is-symfony
