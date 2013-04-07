@@ -28,12 +28,31 @@
     <property name="dir.web" value="${project.basedir}/web"/>
     <property name="dir.vendor" value="${project.basedir}/vendor"/>
     <property name="dir.build" value="${project.basedir}/build"/>
+    <property name="dir.output" value="${dir.build}/output"/>
     <property name="dir.docs" value="${dir.build}/docs"/>
     <property name="dir.docs.phpdoc" value="${dir.docs}/phpdoc"/>
     <property name="dir.docs.docblox" value="${dir.docs}/docblox"/>
     <property name="dir.reports" value="${dir.build}/logs"/>
     <property name="dir.reports.pdepend" value="${dir.reports}/pdepend"/>
     <property name="dir.reports.coverage" value="${dir.reports}/coverage"/>
+
+
+    <if>
+        <not>
+            <or>
+                <isset property="project.application-environment"/>
+                <isset property="project.rewrite-base"/>
+            </or>
+        </not>
+        <then>
+            <input propertyname="project.application-environment"
+                   defaultValue="prod" promptChar="?">Application environment
+            </input>
+            <input propertyname="project.rewrite-base" defaultValue="/"
+                   promptChar="?">Rewrite base
+            </input>
+        </then>
+    </if>
 
     <!-- Filesets -->
     <fileset id="sourcecode" dir="${dir.src}">
@@ -58,7 +77,9 @@
                 build:prepare,
                 build:configs,
                 build:dependencies:install,
-                build:permissions
+                build:permissions,
+                symfony:assets:install,
+                symfony:cache:warmup
             "
             description="Install Project">
         <echo message="!! INSTALL COMPLETE. Please fill out app/config/parameters.yml if you have not already configured it." />
@@ -80,6 +101,10 @@
                 build:dependencies:install,
                 build:permissions,
                 test:unit,
+                symfony:release:assets:intall,
+                symfony:release:cache:warmup,
+                symfony:release:router:dump,
+                build:output,
                 build:package
             "
             description="Run all test and build everything"/>
@@ -124,7 +149,6 @@
             <available file="composer.phar"/>
             <then>
                 <exec passthru="true" checkreturn="true" command="./composer.phar install" />
-                <!--<composer command="install"/>-->
             </then>
             <else>
                 <exec passthru="true" checkreturn="true" command="composer.phar install" />
@@ -134,47 +158,6 @@
 
     <!-- Create .htaccess files -->
     <target name="build:htaccess">
-        <if>
-            <and>
-                <not>
-                    <available file="${dir.web}/.htaccess"/>
-                </not>
-                <isset property="project.application-environment"/>
-                <isset property="project.rewrite-base"/>
-            </and>
-            <then>
-                <phingcall target="build:htaccess:from-properties"/>
-            </then>
-            <else>
-                <phingcall target="build:htaccess:from-input"/>
-            </else>
-        </if>
-    </target>
-
-    <!-- Create .htaccess from a properties file -->
-    <target name="build:htaccess:from-properties">
-        <copy file="${dir.web}/.htaccess.dist" tofile="${dir.web}/.htaccess"
-              overwrite="true">
-            <filterchain>
-                <replacetokens>
-                    <token key="PLACEHOLDER_APPLICATION_ENV"
-                           value="${project.application-environment}"/>
-                    <token key="PLACEHOLDER_REWRITE_BASE"
-                           value="${project.rewrite-base}"/>
-                </replacetokens>
-            </filterchain>
-        </copy>
-    </target>
-
-    <!-- Create .htaccess from user input -->
-    <target name="build:htaccess:from-input">
-        <input propertyname="project.application-environment"
-               defaultValue="prod" promptChar="?">Application environment
-        </input>
-        <input propertyname="project.rewrite-base" defaultValue="/"
-               promptChar="?">Rewrite base
-        </input>
-
         <copy file="${dir.web}/.htaccess.dist" tofile="${dir.web}/.htaccess"
               overwrite="true">
             <filterchain>
@@ -223,7 +206,7 @@
 
     <target name="build:package">
         <zip destfile="build/release.zip">
-            <fileset dir=".">
+            <fileset dir="${dir.web}">
                 <include name="**/**"/>
             </fileset>
         </zip>
@@ -247,13 +230,14 @@
             depends="check:cs, check:md, check:cpd, check:depend"/>
 
     <!-- Project build clean -->
-    <target name="build:clean">
+    <target name="build:clean" description="Clean up generated files">
         <echo msg="Cleaning build directories ..."/>
         <delete dir="${dir.build}" verbose="true"/>
         <delete dir="${dir.vendor}" verbose="false"/>
         <delete dir="${dir.cache}" verbose="false"/>
         <delete dir="${dir.logs}" verbose="true"/>
         <delete dir="${dir.web}/.htaccess" verbose="true"/>
+        <delete dir="${dir.web}/bundles" verbose="true"/>
     </target>
 
     <!-- Project build prepare -->
@@ -262,12 +246,51 @@
         <mkdir dir="${dir.cache}"/>
         <mkdir dir="${dir.logs}"/>
         <mkdir dir="${dir.build}"/>
+        <mkdir dir="${dir.output}" />
         <mkdir dir="${dir.docs}"/>
         <mkdir dir="${dir.docs.phpdoc}"/>
         <mkdir dir="${dir.docs.docblox}"/>
         <mkdir dir="${dir.reports}"/>
         <mkdir dir="${dir.reports.coverage}"/>
         <mkdir dir="${dir.reports.pdepend}"/>
+    </target>
+
+    <target name="build:output">
+        <echo msg="Preparing for release ..." />
+
+        <copy todir="${dir.output}">
+            <fileset dir=".">
+                <include name="**/**"/>
+            </fileset>
+        </copy>
+
+        <delete file="${dir.output}/web/config.php" />
+        <delete file="${dir.output}/web/app_dev.php" />
+        <delete file="${dir.output}/web/.htaccess.dist" />
+
+    </target>
+
+    <target name="symfony:assets:install">
+        <exec passthru="true" checkreturn="true" command="${dir.app}/console assets:install web --symlink --env=dev" />
+    </target>
+
+    <target name="symfony:release:assets:intall">
+        <exec passthru="true" checkreturn="true" command="${dir.app}/console assets:install web --env=prod" />
+        <exec passthru="true" checkreturn="true" command="${dir.app}/console assetic:dump --env=prod" />
+    </target>
+
+    <target name="symfony:cache:warmup">
+        <exec passthru="true" checkreturn="true" command="${dir.app}/console cache:clear --env=dev" />
+        <exec passthru="true" checkreturn="true" command="${dir.app}/console cache:warmup --env=dev" />
+    </target>
+
+    <target name="symfony:release:cache:warmup">
+        <exec passthru="true" checkreturn="true" command="${dir.app}/console cache:clear --env=prod" />
+        <exec passthru="true" checkreturn="true" command="${dir.app}/console cache:warmup --env=prod" />
+    </target>
+
+    <target name="symfony:release:router:dump">
+        <exec passthru="true" checkreturn="true" command="${dir.app}/console router:dump-apache --env=prod >> ${dir.web}/.htaccess" />
     </target>
 
     <!-- PHPDOC API documentation target -->
