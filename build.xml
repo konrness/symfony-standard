@@ -17,6 +17,8 @@
       exists. To automate this process you may specify `project.parameters` in
       your build.properties file with a path to the parameters file you would
       like to use
+    * You can generate Docblox documentation by setting the parameter
+      `project.use-docblox` in your build.properties to `true`
 -->
 <project name="Symfony2 Build Template" basedir="." default="main">
     <!-- Properties -->
@@ -35,7 +37,6 @@
     <property name="dir.reports" value="${dir.build}/logs"/>
     <property name="dir.reports.pdepend" value="${dir.reports}/pdepend"/>
     <property name="dir.reports.coverage" value="${dir.reports}/coverage"/>
-
 
     <if>
         <not>
@@ -99,9 +100,10 @@
                 build:configs,
                 build:doc,
                 build:dependencies:install,
+                build:dependencies:cache,
                 build:permissions,
                 test:unit,
-                symfony:release:assets:intall,
+                symfony:release:assets:install,
                 symfony:release:cache:warmup,
                 symfony:release:router:dump,
                 build:output,
@@ -127,8 +129,6 @@
             description="Clean up build files"
             depends="build:clean" />
 
-
-
     <!-- SUBTARGETS -->
 
     <!-- Build Configs -->
@@ -140,9 +140,6 @@
 
     <!--
         Dependency / Composer install
-
-        Composer task was removed in favor of command line temporarily due to
-        no support for global path recognition.
     -->
     <target name="build:dependencies:install">
         <if>
@@ -152,6 +149,19 @@
             </then>
             <else>
                 <exec passthru="true" checkreturn="true" command="composer.phar install" />
+            </else>
+        </if>
+    </target>
+
+    <!-- Dependency Cache / Composer dump-autoload -->
+    <target name="build:dependencies:cache">
+        <if>
+            <available file="composer.phar"/>
+            <then>
+                <exec passthru="true" checkreturn="true" command="./composer.phar dump-autoload --optimize" />
+            </then>
+            <else>
+                <exec passthru="true" checkreturn="true" command="composer.phar dump-autoload --optimize" />
             </else>
         </if>
     </target>
@@ -204,6 +214,7 @@
         </chmod>
     </target>
 
+    <!-- Package Build -->
     <target name="build:package">
         <zip destfile="build/release.zip">
             <fileset dir="${project.basedir}">
@@ -218,12 +229,29 @@
               overwrite="false"/>
     </target>
 
-    <!--
-        Doc target
-        dependency: doc:docblox can be added to this list to generate docblox
-    -->
+    <!-- Doc target -->
     <target name="build:doc"
-            depends="build:prepare, doc:phpdoc"/>
+            depends="build:prepare, doc:phpdoc, doc:phploc">
+        <if>
+            <and>
+                <isset property="project.use-docblox"/>
+                <equals arg1="${project.use-docbox}" arg2="true" />
+            </and>
+            <then>
+                <phingcall target="doc:docblox" />
+            </then>
+        </if>
+
+    </target>
+
+    <!-- phploc -->
+    <target name="doc:phploc">
+        <exec executable="phploc">
+            <arg value="--log-csv" />
+            <arg value="${dir.reports}/phploc.csv" />
+            <arg path="${project.basedir}/src" />
+        </exec>
+    </target>
 
     <!-- Check target -->
     <target name="build:check"
@@ -255,6 +283,7 @@
         <mkdir dir="${dir.reports.pdepend}"/>
     </target>
 
+    <!-- Build output release directory -->
     <target name="build:output">
         <echo msg="Preparing for release ..." />
 
@@ -270,25 +299,30 @@
 
     </target>
 
+    <!-- Symfony install assets -->
     <target name="symfony:assets:install">
         <exec passthru="true" checkreturn="true" command="${dir.app}/console assets:install web --symlink --env=dev" />
     </target>
 
-    <target name="symfony:release:assets:intall">
+    <!-- Symfony install release assets -->
+    <target name="symfony:release:assets:install">
         <exec passthru="true" checkreturn="true" command="${dir.app}/console assets:install web --env=prod" />
         <exec passthru="true" checkreturn="true" command="${dir.app}/console assetic:dump --env=prod" />
     </target>
 
+    <!-- Symfony warmup cache -->
     <target name="symfony:cache:warmup">
         <exec passthru="true" checkreturn="true" command="${dir.app}/console cache:clear --env=dev" />
         <exec passthru="true" checkreturn="true" command="${dir.app}/console cache:warmup --env=dev" />
     </target>
 
+    <!-- Syfmony warmup release cache -->
     <target name="symfony:release:cache:warmup">
         <exec passthru="true" checkreturn="true" command="${dir.app}/console cache:clear --env=prod" />
         <exec passthru="true" checkreturn="true" command="${dir.app}/console cache:warmup --env=prod" />
     </target>
 
+    <!-- Symfony dump router config -->
     <target name="symfony:release:router:dump">
         <exec passthru="true" checkreturn="true" command="${dir.app}/console router:dump-apache --env=prod >> ${dir.web}/.htaccess" />
     </target>
@@ -296,13 +330,7 @@
     <!-- PHPDOC API documentation target -->
     <target name="doc:phpdoc">
         <echo msg="Generating API documentation with PHPDoc..."/>
-        <phpdoc title="${phing.project.name} :: API Documentation"
-                defaultpackagename="${phing.project.name}"
-                destdir="${dir.docs.phpdoc}"
-                output="HTML:Smarty:PHP"
-                sourcecode="yes">
-            <fileset refid="sourcecode"/>
-        </phpdoc>
+        <exec passthru="true" checkreturn="true" command='phpdoc -d ./src --defaultpackagename="${phing.project.name}" --title="${phing.project.name} :: API Documentation" --target="${dir.docs.phpdoc}" --sourcecode' />
     </target>
 
     <!-- DocBlox API documentation target -->
@@ -364,5 +392,4 @@
         <exec passthru="true" checkreturn="true"
               command="phpunit --log-junit ${dir.reports}/phpunit.xml --coverage-clover ${dir.reports.coverage}/clover.xml --coverage-html ${dir.reports.coverage}/ -c ${dir.app}/phpunit.xml"/>
     </target>
-
 </project>
