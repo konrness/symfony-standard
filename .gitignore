@@ -9,7 +9,6 @@
 
 # Build files
 /composer.phar
-/composer.lock
 /build/
 /app/phpunit.xml
 /app/config/parameters.yml
