@@ -251,7 +251,7 @@
         <echo msg="Cleaning build directories ..."/>
         <delete dir="${dir.build}" verbose="true"/>
         <delete dir="${dir.vendor}" verbose="false"/>
-        <delete dir="${dir.cache}" verbose="false"/>
+        <exec checkreturn="true" command="rm -rf ${dir.cache}" />
         <delete dir="${dir.logs}" verbose="true"/>
         <delete dir="${dir.web}/.htaccess" verbose="true"/>
     </target>
