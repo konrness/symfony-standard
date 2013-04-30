@@ -1,6 +1,8 @@
 {
     "name": "nerdery/symfony-standard",
     "description": "The Nerdery maintained fork of \"Symfony Standard Edition\" distribution",
+    "license": "MIT",
+    "type": "project",
     "autoload": {
         "psr-0": { "": "src/" }
     },
