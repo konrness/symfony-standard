@@ -7,10 +7,9 @@
     through the setup process.
 
     NOTES:
-    * This script will prompt the user for an application environment and
-      rewrite base upon install. To do this automatically you may specify these
-      in your build.properties file as `project.application-environment` and
-      `project.rewrite-base`
+    * This script will prompt the user for an application environment and base
+    upon install. To do this automatically you may specify these in your
+    build.properties file as `project.application-environment`
     * This script will not fill out your parameters.yml file. After install, a
       message will be displayed that these must be edited. The install script
       will copy over a default parameters file from the .dist file if none
@@ -42,15 +41,11 @@
         <not>
             <or>
                 <isset property="project.application-environment"/>
-                <isset property="project.rewrite-base"/>
             </or>
         </not>
         <then>
             <input propertyname="project.application-environment"
                    defaultValue="prod" promptChar="?">Application environment
-            </input>
-            <input propertyname="project.rewrite-base" defaultValue="/"
-                   promptChar="?">Rewrite base
             </input>
         </then>
     </if>
@@ -174,8 +169,6 @@
                 <replacetokens>
                     <token key="PLACEHOLDER_APPLICATION_ENV"
                            value="${project.application-environment}"/>
-                    <token key="PLACEHOLDER_REWRITE_BASE"
-                           value="${project.rewrite-base}"/>
                 </replacetokens>
             </filterchain>
         </copy>
