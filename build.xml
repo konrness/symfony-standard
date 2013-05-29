@@ -10,12 +10,6 @@
     * This script will prompt the user for an application environment and base
     upon install. To do this automatically you may specify these in your
     build.properties file as `project.application-environment`
-    * This script will not fill out your parameters.yml file. After install, a
-      message will be displayed that these must be edited. The install script
-      will copy over a default parameters file from the .dist file if none
-      exists. To automate this process you may specify `project.parameters` in
-      your build.properties file with a path to the parameters file you would
-      like to use
     * You can generate Docblox documentation by setting the parameter
       `project.use-docblox` in your build.properties to `true`
 -->
@@ -78,7 +72,6 @@
                 symfony:cache:warmup
             "
             description="Install Project">
-        <echo message="!! INSTALL COMPLETE. Please fill out app/config/parameters.yml if you have not already configured it." />
     </target>
 
     <!--
@@ -130,7 +123,6 @@
     <target name="build:configs">
         <phingcall target="build:phpunit:config" />
         <phingcall target="build:htaccess" />
-        <phingcall target="build:parameters" />
     </target>
 
     <!--
@@ -172,25 +164,6 @@
                 </replacetokens>
             </filterchain>
         </copy>
-    </target>
-
-    <!-- Create parameters file -->
-    <target name="build:parameters">
-        <if>
-            <not>
-                <isset property="project.parameters"/>
-            </not>
-            <then>
-                <copy file="${dir.app}/config/parameters.yml.dist"
-                      tofile="${dir.app}/config/parameters.yml"
-                      overwrite="false"/>
-            </then>
-            <else>
-                <copy file="${project.parameters}"
-                      tofile="${dir.app}/config/parameters.yml"
-                      overwrite="true"/>
-            </else>
-        </if>
     </target>
 
     <!-- Build Permissions -->
