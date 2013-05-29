@@ -31,19 +31,6 @@
     <property name="dir.reports.pdepend" value="${dir.reports}/pdepend"/>
     <property name="dir.reports.coverage" value="${dir.reports}/coverage"/>
 
-    <if>
-        <not>
-            <or>
-                <isset property="project.application-environment"/>
-            </or>
-        </not>
-        <then>
-            <input propertyname="project.application-environment"
-                   defaultValue="prod" promptChar="?">Application environment
-            </input>
-        </then>
-    </if>
-
     <!-- Filesets -->
     <fileset id="sourcecode" dir="${dir.src}">
         <include name="**/*.php"/>
@@ -155,6 +142,38 @@
 
     <!-- Create .htaccess files -->
     <target name="build:htaccess">
+
+        <if>
+            <isset property="project.application-environment"/>
+            <then>
+                <phingcall target="build:htaccess:from-params" />
+            </then>
+            <else>
+                <phingcall target="build:htaccess:from-prompt" />
+            </else>
+        </if>
+
+    </target>
+
+    <!-- Htaccess file from user prompt -->
+    <target name="build:htaccess:from-prompt">
+        <input propertyname="project.application-environment"
+               defaultValue="prod" promptChar="?">Application environment
+        </input>
+
+        <copy file="${dir.web}/.htaccess.dist" tofile="${dir.web}/.htaccess"
+              overwrite="true">
+            <filterchain>
+                <replacetokens>
+                    <token key="PLACEHOLDER_APPLICATION_ENV"
+                           value="${project.application-environment}"/>
+                </replacetokens>
+            </filterchain>
+        </copy>
+    </target>
+
+    <!-- Htaccess file from a preset parameter -->
+    <target name="build:htaccess:from-params">
         <copy file="${dir.web}/.htaccess.dist" tofile="${dir.web}/.htaccess"
               overwrite="true">
             <filterchain>
