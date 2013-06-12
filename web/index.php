@@ -19,7 +19,10 @@ defined('APPLICATION_ENV')
 
 if (APPLICATION_ENV === 'prod') {
     require dirname(__FILE__) . '/app.php';
-} elseif (APPLICATION_ENV === 'dev') {
+} elseif (
+       APPLICATION_ENV === 'dev'
+    || APPLICATION_ENV === 'staging'
+) {
     require dirname(__FILE__) . '/app_dev.php';
 } else {
     header('HTTP/1.0 500 Internal Server Error');
