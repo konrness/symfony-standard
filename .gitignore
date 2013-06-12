@@ -9,6 +9,7 @@
 /web/uploads
 
 # Build files
+/composer.lock
 /composer.phar
 /build/
 /app/phpunit.xml
