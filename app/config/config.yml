@@ -63,3 +63,17 @@ swiftmailer:
     username:  %mailer_user%
     password:  %mailer_password%
     spool:     { type: memory }
+
+hearsay_require_js:
+    initialize_template: '::initialize_require_js.html.twig'
+    base_directory: %kernel.root_dir%/Resources/scripts
+    optimizer:
+        path: %kernel.root_dir%/../vendor/jrburke/r.js/dist/r.js
+        build_profile: %kernel.root_dir%/Resources/scripts/build.js
+        excludes:
+        options:
+    paths:
+        require: %kernel.root_dir%/../vendor/jrburke/r.js/require.js
+        jquery:
+            location: //ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min
+            external: true

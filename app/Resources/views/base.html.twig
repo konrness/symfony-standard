@@ -8,6 +8,11 @@
     </head>
     <body>
         {% block body %}{% endblock %}
-        {% block javascripts %}{% endblock %}
+        {% block javascripts %}
+            {% block require_js %}
+                {{ require_js_initialize() }}
+                {% block require_js_body %}{% endblock %}
+            {% endblock %}
+        {% endblock %}
     </body>
 </html>
