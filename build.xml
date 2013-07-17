@@ -15,7 +15,15 @@
 -->
 <project name="Symfony2 Build Template" basedir="." default="main">
     <!-- Properties -->
-    <property file="build.properties"/>
+    <if>
+        <available file="build.properties"/>
+        <then>
+            <property file="build.properties"/>
+        </then>
+        <else>
+            <echo msg="No build.properties file detected... OK. Skipping" level="verbose" />
+        </else>
+    </if>
     <property name="dir.app" value="${project.basedir}/app"/>
     <property name="dir.src" value="${project.basedir}/src"/>
     <property name="dir.cache" value="${dir.app}/cache"/>
@@ -43,6 +51,15 @@
     </target>
 
     <!--
+        Reinstall Target
+
+        This target simply does a clean install of the project
+    -->
+    <target name="reinstall"
+            description="Clean Install the project"
+            depends="clean, install" />
+
+    <!--
         Install target
 
         This Target defines the process for the Install command. It sets up the
@@ -50,7 +67,7 @@
     -->
     <target name="install"
             depends="
-                build:clean,
+                clean:cache:clear,
                 build:prepare,
                 build:configs,
                 build:dependencies:install,
@@ -87,6 +104,16 @@
             description="Run all test and build everything"/>
 
     <!--
+        Check Target
+
+        This target dumps any relevant debug information out
+    -->
+    <target name="check" description="Check environment and debug info">
+        <echo msg="Checking PHP configuration" level="info" />
+        <exec command="php ${dir.app}/check.php" passthru="true" />
+    </target>
+
+    <!--
         Test target
 
         This target defines a process for running unit tests
@@ -116,28 +143,42 @@
         Dependency / Composer install
     -->
     <target name="build:dependencies:install">
-        <if>
-            <available file="composer.phar"/>
-            <then>
-                <exec passthru="true" checkreturn="true" command="./composer.phar install" />
-            </then>
-            <else>
-                <exec passthru="true" checkreturn="true" command="composer.phar install" />
-            </else>
-        </if>
+        <trycatch>
+            <try>
+                <if>
+                    <available file="${project.basedir}/composer.phar"/>
+                    <then>
+                        <exec passthru="true" checkreturn="true" command="${project.basedir}/composer.phar install" />
+                    </then>
+                    <else>
+                        <exec passthru="true" checkreturn="true" command="composer.phar install" />
+                    </else>
+                </if>
+            </try>
+            <catch>
+                <echo level="error">Could not find composer. Please make a composer.phar executable available either in path or project root. See: http://getcomposer.org/download/ for details.</echo>
+            </catch>
+        </trycatch>
     </target>
 
     <!-- Dependency Cache / Composer dump-autoload -->
     <target name="build:dependencies:cache">
-        <if>
-            <available file="composer.phar"/>
-            <then>
-                <exec passthru="true" checkreturn="true" command="./composer.phar dump-autoload --optimize" />
-            </then>
-            <else>
-                <exec passthru="true" checkreturn="true" command="composer.phar dump-autoload --optimize" />
-            </else>
-        </if>
+        <trycatch>
+            <try>
+                <if>
+                    <available file="${project.basedir}/composer.phar"/>
+                    <then>
+                        <exec passthru="true" checkreturn="true" command="${project.basedir}/composer.phar dump-autoload --optimize" />
+                    </then>
+                    <else>
+                        <exec passthru="true" checkreturn="true" command="composer.phar dump-autoload --optimize" />
+                    </else>
+                </if>
+            </try>
+            <catch>
+                <echo level="error">Could not find composer. Please make a composer.phar executable available either in path or project root. See: http://getcomposer.org/download/ for details.</echo>
+            </catch>
+        </trycatch>
     </target>
 
     <!-- Create .htaccess files -->
@@ -251,6 +292,7 @@
         <delete dir="${dir.logs}" verbose="true"/>
         <delete dir="${dir.web}/.htaccess" verbose="true"/>
         <delete dir="${dir.web}/bundles" verbose="true"/>
+        <delete file="${project.basedir}/composer.lock" />
     </target>
 
     <!-- Project build prepare -->
@@ -281,7 +323,6 @@
         <delete file="${dir.output}/web/config.php" />
         <delete file="${dir.output}/web/app_dev.php" />
         <delete file="${dir.output}/web/.htaccess.dist" />
-
     </target>
 
     <!-- Symfony install assets -->
@@ -304,7 +345,13 @@
     <!-- Syfmony warmup release cache -->
     <target name="symfony:release:cache:warmup">
         <exec passthru="true" checkreturn="true" command="${dir.app}/console cache:clear --env=prod" />
-        <exec passthru="true" checkreturn="true" command="${dir.app}/console cache:warmup --env=prod" />
+        <echo msg="Cache cleared, but NOT warmed up for release mode" level="info" />
+    </target>
+
+    <!-- Syfmony warmup release cache -->
+    <target name="clean:cache:clear">
+        <exec checkreturn="true" command="rm -rf ${dir.cache}" />
+        <delete dir="${dir.logs}" verbose="true"/>
     </target>
 
     <!-- Symfony dump router config -->
