@@ -30,7 +30,6 @@ require_once __DIR__.'/../app/AppKernel.php';
 
 $kernel = new AppKernel(APPLICATION_ENV, true);
 $kernel->loadClassCache();
-Request::enableHttpMethodParameterOverride();
 $request = Request::createFromGlobals();
 $response = $kernel->handle($request);
 $response->send();
