@@ -148,7 +148,7 @@
                 <if>
                     <available file="${project.basedir}/composer.phar"/>
                     <then>
-                        <exec passthru="true" checkreturn="true" command="${project.basedir}/composer.phar install" />
+                        <exec passthru="true" checkreturn="true" command="php ${project.basedir}/composer.phar install" />
                     </then>
                     <else>
                         <exec passthru="true" checkreturn="true" command="composer.phar install" />
@@ -168,7 +168,7 @@
                 <if>
                     <available file="${project.basedir}/composer.phar"/>
                     <then>
-                        <exec passthru="true" checkreturn="true" command="${project.basedir}/composer.phar dump-autoload --optimize" />
+                        <exec passthru="true" checkreturn="true" command="php ${project.basedir}/composer.phar dump-autoload --optimize" />
                     </then>
                     <else>
                         <exec passthru="true" checkreturn="true" command="composer.phar dump-autoload --optimize" />
