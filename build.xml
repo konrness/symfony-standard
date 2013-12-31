@@ -198,7 +198,7 @@
 
     <!-- Htaccess file from user prompt -->
     <target name="build:htaccess:from-prompt">
-        <input propertyname="project.application-environment"
+        <input propertyName="project.application-environment"
                defaultValue="prod" promptChar="?">Application environment
         </input>
 
