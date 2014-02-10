@@ -6,20 +6,6 @@
     "autoload": {
         "psr-0": { "": "src/" }
     },
-    "repositories": [
-        {
-            "type": "package",
-            "package": {
-                "name": "jrburke/r.js",
-                "version": "2.1.6",
-                "source": {
-                    "url": "git://github.com/jrburke/r.js.git",
-                    "type": "git",
-                    "reference": "2.1.6"
-                }
-            }
-        }
-    ],
     "require": {
         "php": ">=5.3.3",
         "symfony/symfony": "2.3.*",
@@ -34,9 +20,7 @@
         "sensio/generator-bundle": "2.3.*",
         "incenteev/composer-parameter-handler": "~2.0",
         "jms/di-extra-bundle": "1.4.*",
-        "jms/security-extra-bundle": "1.5.*",
-        "hearsay/require-js-bundle": "1.0.*",
-        "jrburke/r.js": "2.1.*"
+        "jms/security-extra-bundle": "1.5.*"
     },
     "scripts": {
         "post-install-cmd": [
