@@ -98,9 +98,7 @@
                 build:permissions,
                 test:unit,
                 symfony:release:assets:install,
-                symfony:release:cache:warmup,
                 symfony:release:router:dump,
-                build:output,
                 build:package
             "
             description="Run all test and build everything"/>
@@ -214,11 +212,15 @@
 
     <!-- Package Build -->
     <target name="build:package">
-        <zip destfile="build/release.zip">
-            <fileset dir="${project.basedir}">
-                <include name="**/**"/>
+        <!-- Build Tar file -->
+        <tar basedir="${project.basedir}" destfile="build/release.tar.gz" compression="gzip" includeemptydirs="true">
+            <fileset dir=".">
+                <exclude name="web/config.php" />
+                <exclude name="web/app_dev.php" />
+                <exclude name=".git" />
+                <exclude name="build/" />
             </fileset>
-        </zip>
+        </tar>
     </target>
 
     <!-- Copy dist phpunit xml -->
@@ -280,21 +282,6 @@
         <mkdir dir="${dir.reports}"/>
         <mkdir dir="${dir.reports.coverage}"/>
         <mkdir dir="${dir.reports.pdepend}"/>
-    </target>
-
-    <!-- Build output release directory -->
-    <target name="build:output">
-        <echo msg="Preparing for release ..." />
-
-        <copy todir="${dir.output}">
-            <fileset dir=".">
-                <include name="**/**"/>
-            </fileset>
-        </copy>
-
-        <delete file="${dir.output}/web/config.php" />
-        <delete file="${dir.output}/web/app_dev.php" />
-        <delete file="${dir.output}/web/.htaccess.dist" />
     </target>
 
     <!-- Symfony install assets -->
