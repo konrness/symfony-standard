@@ -334,7 +334,7 @@
     <!-- PHPDOC API documentation target -->
     <target name="doc:phpdoc">
         <echo msg="Generating API documentation with PHPDoc..."/>
-        <exec passthru="true" checkreturn="true" command='phpdoc -d ./src --defaultpackagename="${phing.project.name}" --title="${phing.project.name} :: API Documentation" --target="${dir.docs.phpdoc}" --sourcecode' />
+        <exec passthru="true" checkreturn="true" command='phpdoc -d ./src --defaultpackagename="${phing.project.name}" --title="${phing.project.name} :: API Documentation" --target="${dir.docs.phpdoc}" --sourcecode -c phpdoc.xml' />
     </target>
 
     <!-- DocBlox API documentation target -->
