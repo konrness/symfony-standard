@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<phpdoc>
+    <logging>
+        <level>warn</level>
+        <paths>
+            <default>build/logs/phpdoc-{DATE}.log</default>
+            <errors>build/logs/phpdoc-{DATE}.errors.log</errors>
+        </paths>
+    </logging>
+</phpdoc>
