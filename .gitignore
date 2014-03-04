@@ -1,4 +1,4 @@
-# Symfony Files
+# Symfony files
 /web/bundles/
 /app/bootstrap.php.cache
 /app/cache/*
@@ -20,7 +20,6 @@
 /web/.htaccess
 /build.properties
 
-
 # IDE specific project files
 .nbproject
 *.iml
@@ -30,3 +29,7 @@
 .classpath
 .project
 
+# OSX files
+.DS_Store
+.DS_Store?
+._*
