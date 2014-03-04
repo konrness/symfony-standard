@@ -32,3 +32,7 @@
 # OSX files
 .DS_Store
 ._*
+
+# Windows files
+Thumbs.db
+Desktop.ini
