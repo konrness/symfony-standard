@@ -264,7 +264,7 @@
         <delete dir="${dir.vendor}" verbose="false"/>
         <exec checkreturn="true" command="rm -rf ${dir.cache}" />
         <delete dir="${dir.logs}" verbose="true"/>
-        <delete dir="${dir.web}/.htaccess" verbose="true"/>
+        <delete file="${dir.web}/.htaccess" verbose="true"/>
         <delete dir="${dir.web}/bundles" verbose="true"/>
         <delete file="${project.basedir}/composer.lock" />
     </target>
