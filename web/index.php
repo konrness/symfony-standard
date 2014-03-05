@@ -12,7 +12,7 @@
  */
 
 // Define application environment
-defined('APPLICATION_ENV') 
+defined('APPLICATION_ENV')
     || define('APPLICATION_ENV', (getenv('APPLICATION_ENV') ? getenv('APPLICATION_ENV') : 'prod'));
 
 switch (APPLICATION_ENV) {
