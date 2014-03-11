@@ -38,6 +38,8 @@
     <property name="dir.reports" value="${dir.build}/logs"/>
     <property name="dir.reports.pdepend" value="${dir.reports}/pdepend"/>
     <property name="dir.reports.coverage" value="${dir.reports}/coverage"/>
+    <property name="bin.php" value="php"/>
+    <property name="bin.php.bigmem" value="${bin.php} -d memory_limit=256M"/>
     <property name="bin.composer" value="${project.basedir}/composer.phar"/>
     <property name="bin.composer.failMessage" value="Could not find composer. Please make a composer.phar executable available either in path or project root. See: http://getcomposer.org/download/ for details."/>
 
@@ -110,7 +112,7 @@
     -->
     <target name="check" description="Check environment and debug info">
         <echo msg="Checking PHP configuration" level="info" />
-        <exec command="php ${dir.app}/check.php" passthru="true" />
+        <exec command="${bin.php} ${dir.app}/check.php" passthru="true" />
     </target>
 
     <!--
@@ -297,17 +299,18 @@
 
     <!-- Symfony warmup cache -->
     <target name="symfony:cache:warmup">
-        <exec passthru="true" checkreturn="true" command="${dir.app}/console cache:clear --env=dev" />
-        <exec passthru="true" checkreturn="true" command="${dir.app}/console cache:warmup --env=dev" />
+        <exec passthru="true" checkreturn="true" command="${bin.php.bigmem} ${dir.app}/console cache:clear --env=dev" />
+        <exec passthru="true" checkreturn="true" command="${bin.php.bigmem} ${dir.app}/console cache:warmup --env=dev" />
     </target>
 
-    <!-- Syfmony warmup release cache -->
+    <!-- Symfony warmup release cache -->
     <target name="symfony:release:cache:warmup">
         <exec passthru="true" checkreturn="true" command="${dir.app}/console cache:clear --env=prod" />
+        <exec passthru="true" checkreturn="true" command="${bin.php.bigmem} ${dir.app}/console cache:clear --env=prod" />
         <echo msg="Cache cleared, but NOT warmed up for release mode" level="info" />
     </target>
 
-    <!-- Syfmony warmup release cache -->
+    <!-- Symfony clean cache clear -->
     <target name="clean:cache:clear">
         <exec checkreturn="true" command="rm -rf ${dir.cache}" />
         <delete dir="${dir.logs}" verbose="true"/>
