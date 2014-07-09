@@ -99,3 +99,4 @@ production server. It generates reports on the software and it creates a zip of
 the contents in `build/release.zip`
 
 [1]:  http://symfony.com/what-is-symfony
+
